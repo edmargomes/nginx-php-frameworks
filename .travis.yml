@@ -1,0 +1,41 @@
+language: python
+
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION=1.10.0
+  matrix:
+    - DRUPAL=8 LINE=1.x NGINX=1.13
+    - DRUPAL=7 LINE=1.x NGINX=1.13
+    - DRUPAL=6 LINE=1.x NGINX=1.13
+    - DRUPAL=8 LINE=1.x NGINX=1.12
+    - DRUPAL=7 LINE=1.x NGINX=1.12
+    - DRUPAL=6 LINE=1.x NGINX=1.12
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce=17.06.2~ce-0~ubuntu
+
+install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+script:
+  - cd ./$DRUPAL/$LINE
+  - make && make test
+
+after_success: |
+  if [ "$TRAVIS_PULL_REQUEST" == "false" ] && ([ "$TRAVIS_BRANCH" == "master" ] || [ -n "$TRAVIS_TAG" ]); then
+    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    make release
+
+    if [ -n "$TRAVIS_TAG" ]; then
+      make VERSION="$DRUPAL-$NGINX-$TRAVIS_TAG" release
+    fi
+  fi
