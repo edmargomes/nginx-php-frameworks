@@ -20,7 +20,6 @@ server {
     fastcgi_keep_conn on;
     fastcgi_index index.php;
     location / {
-        try_files $uri $uri/ /index.php$is_args$args;
         location ~* /system/files/ {
             include fastcgi_params;
             fastcgi_param QUERY_STRING q=$uri&$args;
