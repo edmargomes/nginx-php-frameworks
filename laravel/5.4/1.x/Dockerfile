@@ -1,4 +1,4 @@
-ARG NGINX_VER
+ARG NGINX_VER=1.13
 
 FROM wodby/nginx:1.13
 
