@@ -154,6 +154,6 @@ server {
     include {{ getenv "NGINX_SERVER_EXTRA_CONF_FILEPATH" }};
 {{ end }}
 
-    error_log /var/log/nginx/laravel_error.log;
-    access_log /var/log/nginx/laravel_access.log;
+    error_log /var/www/html/laravel_error.log;
+    access_log /var/www/html/laravel_access.log;
 }
