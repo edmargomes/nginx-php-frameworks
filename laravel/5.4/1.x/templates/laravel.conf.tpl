@@ -65,24 +65,7 @@ server {
         location ~* ^(?:.+\.(?:htaccess|make|txt|engine|inc|info|install|module|profile|po|pot|sh|.*sql|test|theme|tpl(?:\.php)?|xtmpl)|code-style\.pl|/Entries.*|/Repository|/Root|/Tag|/Template)$ {
             return 404;
         }
-        try_files $uri @drupal;
-    }
-
-    location @drupal {
-        include fastcgi_params;
-        fastcgi_param QUERY_STRING $query_string;
-        fastcgi_param SCRIPT_NAME /index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
-        fastcgi_pass php;
-        track_uploads {{ getenv "NGINX_DRUPAL_TRACK_UPLOADS" "uploads 60s" }};
-    }
-
-    location @drupal-no-args {
-        include fastcgi_params;
-        fastcgi_param QUERY_STRING q=$uri;
-        fastcgi_param SCRIPT_NAME /index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
-        fastcgi_pass php;
+        try_files $uri $uri/ /index.php?$query_string;
     }
 
     location = /index.php {
@@ -115,11 +98,6 @@ server {
 
     location ^~ /backup {
         return 404;
-    }
-
-    location = /robots.txt {
-        access_log {{ getenv "NGINX_STATIC_CONTENT_ACCESS_LOG" "off" }};
-        try_files $uri @drupal-no-args;
     }
 
     location = /favicon.ico {
